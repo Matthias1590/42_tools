@@ -9,9 +9,9 @@ import subprocess
 import re
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog="42")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose logging", default=False)
-    parser.add_argument("--version", action="version", version="42 v1.0")
+    parser.add_argument("--version", action="version", version="%(prog)s v1.0")
 
     subparsers = parser.add_subparsers(dest="command")
 
@@ -28,7 +28,7 @@ def main() -> None:
     run.add_argument("--debug", action="store_true", help="Run with valgrind")
     run.add_argument("options", nargs=argparse.REMAINDER, help="Options to pass to the project")
 
-    update = subparsers.add_parser("update", help="Update 42")
+    update = subparsers.add_parser("update", help="Update 42 tools")
 
     args = parser.parse_args()
 
@@ -234,7 +234,7 @@ def update_makefile(path: str, args: argparse.Namespace) -> bool:
     makefile = read_file(path)
     old_makefile = makefile
 
-    matches = re.findall(r"^CFLAGS\s*(:|\?)=\s*(.*)$", makefile, re.MULTILINE)
+    matches = re.findall(r"^CFLAGS\s*(:|\?|)=\s*(.*)$", makefile, re.MULTILINE)
     if not matches:
         logging.error(f"Could not find CFLAGS in {path}, cannot compile with debug flags")
         return
@@ -246,7 +246,7 @@ def update_makefile(path: str, args: argparse.Namespace) -> bool:
     elif not ("debug" in args and args.debug) and "-g" in cflags:
         cflags = cflags.replace("-g", "").strip()
 
-    makefile = re.sub(r"^CFLAGS\s*(:|\?)=\s*(.*)$", f"CFLAGS {match[0]}= {cflags}", makefile, flags=re.MULTILINE)
+    makefile = re.sub(r"^CFLAGS\s*(:|\?|)=\s*(.*)$", f"CFLAGS {match[0]}= {cflags}", makefile, flags=re.MULTILINE)
 
     if makefile != old_makefile:
         write_file(path, makefile)
