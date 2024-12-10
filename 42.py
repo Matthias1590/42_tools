@@ -58,7 +58,7 @@ def main() -> None:
             run_run(args)
 
 def update_available(args: argparse.Namespace) -> bool:
-    run_command(f"cd {os.path.dirname(__file__)!r} && git fetch -q")
+    return "behind" in subprocess.getoutput(f"cd {os.path.dirname(__file__)!r} && (git fetch -q && git branch -v)")
 
 def run_update(args: argparse.Namespace) -> None:
     run_command(f"cd {os.path.dirname(__file__)!r} && git pull")
