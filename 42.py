@@ -184,7 +184,7 @@ re: fclean $(NAME)
 {get_re_commands(args)}
 
 {get_lib_rules(args)}
-"""[1:])  # TODO: run clean, fclean, and re for included libraries as well
+"""[1:])
 
     logging.debug("Makefile created/updated successfully")
 
