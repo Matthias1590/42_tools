@@ -18,6 +18,7 @@ def main() -> None:
     subparsers = parser.add_subparsers(dest="command")
 
     init = subparsers.add_parser("init", help="Set up a new project")
+    init.add_argument("--force", action="store_true", help="Force reinitialization of the project")
     init.add_argument("--libft", action="store_true", help="Include libft")
     init.add_argument("--minilibx", action="store_true", help="Include minilibx")
 
