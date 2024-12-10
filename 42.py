@@ -36,7 +36,7 @@ def main() -> None:
     else:
         logging.basicConfig(level=logging.INFO)
 
-    if args.update:
+    if args.command == "update":
         run_update(args)
         return
 
