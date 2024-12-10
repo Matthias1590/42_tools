@@ -30,7 +30,7 @@ def main() -> None:
     run.add_argument("--debug", action="store_true", help="Run with valgrind")
     run.add_argument("options", nargs=argparse.REMAINDER, help="Options to pass to the project")
 
-    update = subparsers.add_parser("update", help="Update 42 tools")
+    subparsers.add_parser("update", help="Update 42 tools")
 
     args = parser.parse_args()
 
