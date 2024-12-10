@@ -11,6 +11,7 @@ import re
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", action="store_true", help="Enable verbose logging", default=False)
+    parser.add_argument("--version", action="version", version="42 v1.0")
 
     subparsers = parser.add_subparsers(dest="command")
 
