@@ -302,10 +302,12 @@ def get_c_flags(args: argparse.Namespace) -> str:
 
 def get_ld_flags(args: argparse.Namespace) -> str:
     ld_flags = ""
+
     if args.libft:
         ld_flags += " -L./libft -lft"
     if args.minilibx:
         ld_flags += " -L./minilibx -lmlx -lX11 -lXext -lm"
+
     return ld_flags.strip()
 
 def get_sources() -> str:
