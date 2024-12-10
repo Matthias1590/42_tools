@@ -11,7 +11,7 @@ import re
 def main() -> None:
     parser = argparse.ArgumentParser(prog="42")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose logging", default=False)
-    parser.add_argument("--version", action="version", version="%(prog)s v1.0")
+    parser.add_argument("--version", action="version", version="%(prog)s v1.1")
 
     subparsers = parser.add_subparsers(dest="command")
 
@@ -41,6 +41,9 @@ def main() -> None:
         run_update(args)
         return
 
+    if update_available(args):
+        logging.warning("An update is available, run `42 update` to update")
+
     if args.command != "init":
         load_config(args)
 
@@ -51,6 +54,9 @@ def main() -> None:
             run_compile(args)
         case "run":
             run_run(args)
+
+def update_available(args: argparse.Namespace) -> bool:
+    run_command(f"cd {os.path.dirname(__file__)!r} && git fetch -q")
 
 def run_update(args: argparse.Namespace) -> None:
     run_command(f"cd {os.path.dirname(__file__)!r} && git pull")
