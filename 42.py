@@ -23,6 +23,7 @@ def main() -> None:
     compile.add_argument("--debug", action="store_true", help="Compile with debug flags")
 
     run = subparsers.add_parser("run", help="Run the project")
+    run.add_argument("--no-norminette", action="store_true", help="Run without norminette", default=False)
     run.add_argument("--debug", action="store_true", help="Run with valgrind")
     run.add_argument("options", nargs=argparse.REMAINDER, help="Options to pass to the project")
 
