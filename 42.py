@@ -79,8 +79,17 @@ def run_init(args: argparse.Namespace) -> None:
     create_makefile(args)
     create_gitignore(args)
     create_config(args)
+    create_git(args)
 
     logging.info("Project initialized successfully")
+
+def create_git(args: argparse.Namespace) -> None:
+    logging.debug("Creating git repository")
+
+    shutil.rmtree(".git", ignore_errors=True)
+    run_command("git init")
+
+    logging.debug("Git repository created successfully")
 
 def include_libft() -> None:
     include_project(get_libft_path(), "libft")
@@ -309,7 +318,7 @@ minilibx/libmlx.a:
     return rules.strip()
 
 def get_c_flags(args: argparse.Namespace) -> str:
-    c_flags = "-Wall -Wextra -Werror -I./includes"
+    c_flags = "-Wall -Wextra -Werror -I./inc"
     if "debug" in args and args.debug:
         c_flags += " -g"
     if args.libft or args.minilibx:
@@ -363,7 +372,7 @@ def create_folders(args: argparse.Namespace) -> None:
     logging.debug("Creating folders")
 
     os.makedirs("src", exist_ok=True)
-    os.makedirs("includes", exist_ok=True)
+    os.makedirs("inc", exist_ok=True)
     os.makedirs("obj", exist_ok=True)
 
     logging.debug("Folders created successfully")
@@ -423,7 +432,7 @@ def copy_source_structure() -> None:
 def run_norminette() -> bool:
     logging.debug("Running norminette")
 
-    res = run_command("norminette src includes", check_result=False)
+    res = run_command("norminette src inc", check_result=False)
 
     if res:
         logging.debug("Norminette passed")
