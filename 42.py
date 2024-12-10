@@ -27,12 +27,18 @@ def main() -> None:
     run.add_argument("--debug", action="store_true", help="Run with valgrind")
     run.add_argument("options", nargs=argparse.REMAINDER, help="Options to pass to the project")
 
+    update = subparsers.add_parser("update", help="Update 42")
+
     args = parser.parse_args()
 
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
+
+    if args.update:
+        run_update(args)
+        return
 
     if args.command != "init":
         load_config(args)
@@ -44,6 +50,9 @@ def main() -> None:
             run_compile(args)
         case "run":
             run_run(args)
+
+def run_update(args: argparse.Namespace) -> None:
+    run_command(f"cd {os.path.dirname(__file__)!r} && git pull")
 
 def run_init(args: argparse.Namespace) -> None:
     if args.libft:
@@ -141,12 +150,13 @@ obj/%.o: src/%.c
 ## Cleaning rules ##
 
 clean:
-\t$(RM) $(OBJS)
+{get_clean_commands(args)}
 
 fclean: clean
-\t$(RM) $(NAME)
+{get_fclean_commands(args)}
 
 re: fclean $(NAME)
+{get_re_commands(args)}
 
 {get_lib_rules(args)}
 """[1:])  # TODO: run clean, fclean, and re for included libraries as well
@@ -165,6 +175,48 @@ re: fclean $(NAME)
 
     return modified
 
+def get_clean_commands(args: argparse.Namespace) -> str:
+    commands = "\t$(RM) $(OBJS)\n"
+
+    if args.libft:
+        commands += """
+\t$(MAKE) -C libft clean
+"""[1:]
+    if args.minilibx:
+        commands += """
+\t$(MAKE) -C minilibx clean
+"""[1:]
+    
+    return commands.rstrip()
+
+def get_fclean_commands(args: argparse.Namespace) -> str:
+    commands = "\t$(RM) $(OBJS) $(NAME)\n"
+
+    if args.libft:
+        commands += """
+\t$(MAKE) -C libft fclean
+"""[1:]
+    if args.minilibx:
+        commands += """
+\t$(MAKE) -C minilibx clean
+"""[1:]
+
+    return commands.rstrip()
+
+def get_re_commands(args: argparse.Namespace) -> str:
+    commands = ""
+
+    if args.libft:
+        commands += """
+\t$(MAKE) -C libft re
+"""[1:]
+    if args.minilibx:
+        commands += """
+\t$(MAKE) -C minilibx re
+"""[1:]
+        
+    return commands.rstrip()
+
 def update_libft_makefile(args: argparse.Namespace) -> bool:
     logging.debug("Updating libft Makefile")
 
@@ -181,19 +233,19 @@ def update_makefile(path: str, args: argparse.Namespace) -> bool:
     makefile = read_file(path)
     old_makefile = makefile
 
-    matches = re.findall(r"^CFLAGS\s*=\s*(.*)$", makefile, re.MULTILINE)
+    matches = re.findall(r"^CFLAGS\s*(:|\?)=\s*(.*)$", makefile, re.MULTILINE)
     if not matches:
         logging.error(f"Could not find CFLAGS in {path}, cannot compile with debug flags")
         return
     match = matches[0]
     
-    cflags = match.strip()
+    cflags = match[1].strip()
     if ("debug" in args and args.debug) and "-g" not in cflags:
         cflags = f"{cflags} -g".strip()
     elif not ("debug" in args and args.debug) and "-g" in cflags:
         cflags = cflags.replace("-g", "").strip()
 
-    makefile = re.sub(r"^CFLAGS\s*=\s*(.*)$", f"CFLAGS = {cflags}", makefile, flags=re.MULTILINE)
+    makefile = re.sub(r"^CFLAGS\s*(:|\?)=\s*(.*)$", f"CFLAGS {match[0]}= {cflags}", makefile, flags=re.MULTILINE)
 
     if makefile != old_makefile:
         write_file(path, makefile)
