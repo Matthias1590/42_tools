@@ -9,9 +9,11 @@ import subprocess
 import re
 
 def main() -> None:
+    version = subprocess.getoutput(f'cd {os.path.dirname(__file__)} && git log --pretty=\"(%h) - %cd\" -n 1')
+
     parser = argparse.ArgumentParser(prog="42")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose logging", default=False)
-    parser.add_argument("--version", action="version", version="%(prog)s v1.1")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {version}")
 
     subparsers = parser.add_subparsers(dest="command")
 
@@ -62,9 +64,15 @@ def run_update(args: argparse.Namespace) -> None:
     run_command(f"cd {os.path.dirname(__file__)!r} && git pull")
 
 def run_init(args: argparse.Namespace) -> None:
+    if os.path.exists(".42_config.yml") and not ("force" in args and args.force):
+        logging.error("Project already initialized, if you want to reinitialize the project run `42 init --force`")
+        return
+
     if args.libft:
+        shutil.rmtree("libft", ignore_errors=True)
         include_libft()
     if args.minilibx:
+        shutil.rmtree("minilibx", ignore_errors=True)
         include_minilibx()
     create_folders(args)
     create_makefile(args)
