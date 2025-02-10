@@ -167,7 +167,7 @@ NAME = {get_project_name(args)}
 ## Compilation rules ##
 
 $(NAME): $(OBJS) {get_libs(args)}
-\t$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+\t$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 obj/%.o: src/%.c
 \t$(CC) $(CFLAGS) -c -o $@ $<
